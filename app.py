@@ -20,6 +20,7 @@ if st.button("Speak"):
             b64 = base64.b64encode(audio_data).decode()
 
         # Inject invisible auto-playing audio
+        st.info(text)
         audio_html = f"""
         <audio autoplay style="display:none;">
             <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
