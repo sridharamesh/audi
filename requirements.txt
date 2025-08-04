@@ -2,3 +2,4 @@ streamlit
 gtts
 pydub
 pyaudio
+pyaudioloop
