@@ -1,39 +1,31 @@
 import streamlit as st
 from gtts import gTTS
-from pydub import AudioSegment
-import os
-from io import BytesIO
+import base64
 
-st.title("🗣️ Text-to-Speech (TTS) Demo")
-st.write("Enter text below and hear it spoken aloud.")
+st.title("🗣 Text-to-Speech with Auto-Play")
 
-# Input
-text = st.text_area("Enter text to synthesize:", "Hello, Streamlit!")
+text = st.text_area("Enter text to speak:", "Hello from Streamlit!")
 
-# Generate audio when button is clicked
-if st.button("Generate & Play"):
-    if text.strip() == "":
+if st.button("Generate Audio"):
+    if not text.strip():
         st.warning("Please enter some text.")
     else:
-        # Generate speech with gTTS
+        # Generate and save MP3
         tts = gTTS(text)
         tts.save("output.mp3")
 
-        # Convert to WAV for consistent browser playback
-        audio = AudioSegment.from_mp3("output.mp3")
-        audio.export("output.wav", format="wav")
+        # Read MP3 and encode to base64
+        with open("output.mp3", "rb") as f:
+            audio_bytes = f.read()
+            b64_audio = base64.b64encode(audio_bytes).decode()
 
-        # Load file into memory for playback and download
-        audio_file = open("output.wav", "rb").read()
-        st.audio(audio_file, format="audio/wav")
+        # Embed audio with autoplay
+        audio_html = f"""
+        <audio autoplay controls>
+            <source src="data:audio/mp3;base64,{b64_audio}" type="audio/mp3">
+            Your browser does not support the audio element.
+        </audio>
+        """
 
-        st.download_button(
-            label="Download Audio",
-            data=audio_file,
-            file_name="output.wav",
-            mime="audio/wav"
-        )
-
-        # Optional: cleanup
-        os.remove("output.mp3")
-        os.remove("output.wav")
+        # Render in Streamlit
+        st.markdown(audio_html, unsafe_allow_html=True)
